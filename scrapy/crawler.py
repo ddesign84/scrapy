@@ -19,10 +19,16 @@ class Crawler(object):
     def __init__(self, spidercls, settings):
         self.spidercls = spidercls
         self.settings = settings
+
         self.signals = SignalManager(self)
+
+        # STATS_CLASS = 'scrapy.statscol.MemoryStatsCollector'
         self.stats = load_object(self.settings['STATS_CLASS'])(self)
+
+        # LOG_FORMATTER = 'scrapy.logformatter.LogFormatter'
         lf_cls = load_object(self.settings['LOG_FORMATTER'])
         self.logformatter = lf_cls.from_crawler(self)
+
         self.extensions = ExtensionManager.from_crawler(self)
 
         self.crawling = False
@@ -37,6 +43,8 @@ class Crawler(object):
                           "scrapy.spidermanager.SpiderManager with your "
                           "settings.",
                           category=ScrapyDeprecationWarning, stacklevel=2)
+
+            # SPIDER_MANAGER_CLASS = 'scrapy.spidermanager.SpiderManager'
             spman_cls = load_object(self.settings['SPIDER_MANAGER_CLASS'])
             self._spiders = spman_cls.from_settings(self.settings)
         return self._spiders
@@ -60,7 +68,7 @@ class Crawler(object):
         return self.spidercls.from_crawler(self, *args, **kwargs)
 
     def _create_engine(self):
-        return ExecutionEngine(self, lambda _: self.stop())
+        return ExecutionlEngine(self, lambda _: self.stop())
 
     @defer.inlineCallbacks
     def stop(self):
@@ -73,8 +81,11 @@ class CrawlerRunner(object):
 
     def __init__(self, settings):
         self.settings = settings
+
+        # SPIDER_MANAGER_CLASS = 'scrapy.spidermanager.SpiderManager'
         smcls = load_object(settings['SPIDER_MANAGER_CLASS'])
         self.spiders = smcls.from_settings(settings.frozencopy())
+
         self.crawlers = set()
         self._active = set()
 

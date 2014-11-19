@@ -4,76 +4,46 @@
 
 简介
 ======
-陆续使用Scrapy已经快两年了， 感觉非常方便， 业务上已经没有什么难度了， 准备开始看源代码， 了解他的实现， 以达到从底层进行优化， 如果不理想， 看完后需考虑使用golang重写一个类Scrapy的框架。
 
+陆续使用Scrapy已经快两年了， 感觉非常方便， 业务上已经没有什么难度了， 准备开始看源代码， 了解他的实现， 以达到从底层进行优化。
+如果不太好优化， 看完后需考虑使用golang重写一个类Scrapy的框架。
+
+架构
 ======
-Scrapy
+
+
+结构
 ======
 
-.. image:: https://badge.fury.io/py/Scrapy.png
-   :target: http://badge.fury.io/py/Scrapy
+* 运行入口
 
-.. image:: https://secure.travis-ci.org/scrapy/scrapy.png?branch=master
-   :target: http://travis-ci.org/scrapy/scrapy
+scrapy.crawler
 
-.. image:: https://pypip.in/wheel/Scrapy/badge.png
-    :target: https://pypi.python.org/pypi/Scrapy/
-    :alt: Wheel Status
+# CrawlerRunner 在一个进行内运行一个爬虫
+# CrawlerProcess 在一个进程内同时运行多个爬虫
 
-Overview
-========
+* 信号管理器 SignalManager
 
-Scrapy is a fast high-level screen scraping and web crawling framework, used to
-crawl websites and extract structured data from their pages. It can be used for
-a wide range of purposes, from data mining to monitoring and automated testing.
+scrapy.signalmanager.SignalManager 信号管理器
 
-For more information including a list of features check the Scrapy homepage at:
-http://scrapy.org
+* 蜘蛛管理器 SpiderManager
 
-Requirements
-============
+scrapy.spidermanager.SpiderManager 蜘蛛管理器， 有使用
 
-* Python 2.7
-* Works on Linux, Windows, Mac OSX, BSD
+* 中间件管理 MiddlewareManager
 
-Install
-=======
+scrapy.middleware.MiddlewareManager 中间件管理父类， 两个初始化方法from_crawler、from_settings，代码里middleware简写成mv
+中间件有三个初始化方法， 如下代码， 先判断是否from_crawler， 再判断from_settings， 实在没有就使用__init__
+```
+mwcls = load_object(clspath)
+if crawler and hasattr(mwcls, 'from_crawler'):
+    mw = mwcls.from_crawler(crawler)
+elif hasattr(mwcls, 'from_settings'):
+    mw = mwcls.from_settings(settings)
+else:
+    mw = mwcls()
+middlewares.append(mw)
+```
 
-The quick way::
-
-    pip install scrapy
-
-For more details see the install section in the documentation:
-http://doc.scrapy.org/en/latest/intro/install.html
-
-Releases
-========
-
-You can download the latest stable and development releases from:
-http://scrapy.org/download/
-
-Documentation
-=============
-
-Documentation is available online at http://doc.scrapy.org/ and in the ``docs``
-directory.
-
-Community (blog, twitter, mail list, IRC)
-=========================================
-
-See http://scrapy.org/community/
-
-Contributing
-============
-
-See http://doc.scrapy.org/en/latest/contributing.html
-
-Companies using Scrapy
-======================
-
-See http://scrapy.org/companies/
-
-Commercial Support
-==================
-
-See http://scrapy.org/support/
+# ExtensionManager 扩展管理器（基本扩展在配置EXTENSIONS_BASE， 自定义配置为EXTENSIONS）
+调用扩展时， 判断是否有方法from_crawler， 有则crawler做为参数传入， 否则判断是否有方法from_settings， 有则settings做为参数传入

@@ -2,6 +2,9 @@ from scrapy.xlib.pydispatch import dispatcher
 from scrapy.utils import signal
 
 class SignalManager(object):
+    """
+    信号管理器
+    """
 
     def __init__(self, sender=dispatcher.Anonymous):
         self.sender = sender

@@ -18,6 +18,10 @@ class MiddlewareManager(object):
 
     @classmethod
     def _get_mwlist_from_settings(cls, settings):
+        """
+        取得中间件列表， 字典
+        ExtensionManager有做重写， 返回EXTENSIONS_BASE 并 EXTENSIONS的class path
+        """
         raise NotImplementedError
 
     @classmethod
@@ -50,12 +54,21 @@ class MiddlewareManager(object):
         return cls.from_settings(crawler.settings, crawler)
 
     def _add_middleware(self, mw):
+        """
+        添加中间件的方法open_spider和close_spider方法， 如果存在则添加
+        注意先后顺序open = append, close = insert(0
+        先open后close, 后open， 先close
+        """
         if hasattr(mw, 'open_spider'):
             self.methods['open_spider'].append(mw.open_spider)
         if hasattr(mw, 'close_spider'):
             self.methods['close_spider'].insert(0, mw.close_spider)
 
     def _process_parallel(self, methodname, obj, *args):
+        """
+        并行处理
+        """
+        # Chen: process_parallel 什么是并行处理， 暂时不看, twisted的资料太少了， 先使用
         return process_parallel(self.methods[methodname], obj, *args)
 
     def _process_chain(self, methodname, obj, *args):
@@ -66,7 +79,13 @@ class MiddlewareManager(object):
             self.methods[eb_methodname], obj, *args)
 
     def open_spider(self, spider):
+        """
+        并行处理 所有中间件的 open_spider
+        """
         return self._process_parallel('open_spider', spider)
 
     def close_spider(self, spider):
+        """
+        并行处理 所有中间件的 close_spider
+        """
         return self._process_parallel('close_spider', spider)

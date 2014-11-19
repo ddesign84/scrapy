@@ -7,7 +7,9 @@ from six.moves.configparser import SafeConfigParser
 
 
 def build_component_list(base, custom):
-    """Compose a component list based on a custom and base dict of components
+    """
+    合并base和custom， 去重， 并把值为None的扩展移除
+    Compose a component list based on a custom and base dict of components
     (typically middlewares or extensions), unless custom is already a list, in
     which case it's returned.
     """

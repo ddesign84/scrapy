@@ -29,7 +29,10 @@ def arg_to_iter(arg):
 
 
 def load_object(path):
-    """Load an object given its absolute object path, and return it.
+    """
+    通过对象绝对路径， 加载对象， 对象可以是类、函数、 变量
+    在Scrapy里大多都是用来加载配置里面的各种class， 如EXTENSIONS、MIDDLEWARES等
+    Load an object given its absolute object path, and return it.
 
     object can be a class, function, variable o instance.
     path ie: 'scrapy.contrib.downloadermiddelware.redirect.RedirectMiddleware'
