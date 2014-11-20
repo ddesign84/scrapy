@@ -1,3 +1,4 @@
+# coding: utf-8
 import six
 import signal
 import warnings
@@ -15,11 +16,15 @@ from scrapy import log, signals
 
 
 class Crawler(object):
-
+    """
+    爬虫类
+    运行， 先__init__再执行crawl
+    """
     def __init__(self, spidercls, settings):
         self.spidercls = spidercls
         self.settings = settings
 
+        # 信号管理器
         self.signals = SignalManager(self)
 
         # STATS_CLASS = 'scrapy.statscol.MemoryStatsCollector'
@@ -29,8 +34,10 @@ class Crawler(object):
         lf_cls = load_object(self.settings['LOG_FORMATTER'])
         self.logformatter = lf_cls.from_crawler(self)
 
+        # 扩展管理器
         self.extensions = ExtensionManager.from_crawler(self)
 
+        # 运行状态
         self.crawling = False
         self.spider = None
         self.engine = None
@@ -57,6 +64,7 @@ class Crawler(object):
         try:
             self.spider = self._create_spider(*args, **kwargs)
             self.engine = self._create_engine()
+            # 返回一批 yield Request
             start_requests = iter(self.spider.start_requests())
             yield self.engine.open_spider(self.spider, start_requests)
             yield defer.maybeDeferred(self.engine.start)
@@ -68,7 +76,7 @@ class Crawler(object):
         return self.spidercls.from_crawler(self, *args, **kwargs)
 
     def _create_engine(self):
-        return ExecutionlEngine(self, lambda _: self.stop())
+        return ExecutionEngine(self, lambda _: self.stop())
 
     @defer.inlineCallbacks
     def stop(self):

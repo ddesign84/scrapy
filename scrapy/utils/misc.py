@@ -1,3 +1,4 @@
+# coding: utf-8
 """Helper functions which doesn't fit anywhere else"""
 import re
 import hashlib
@@ -55,7 +56,9 @@ def load_object(path):
 
 
 def walk_modules(path):
-    """Loads a module and all its submodules from a the given module path and
+    """
+    返回指定模块及模块路径中的所有的子模块
+    Loads a module and all its submodules from a the given module path and
     returns them. If *any* module throws an exception while importing, that
     exception is thrown back.
 
