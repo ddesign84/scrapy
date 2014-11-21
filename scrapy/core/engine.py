@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 This is the Scrapy engine which controls the Scheduler, Downloader and Spiders.
 
@@ -95,6 +96,9 @@ class ExecutionEngine(object):
         self.paused = False
 
     def _next_request(self, spider):
+        """
+        取得下一个request
+        """
         slot = self.slot
         if not slot:
             return
@@ -173,10 +177,14 @@ class ExecutionEngine(object):
     def crawl(self, request, spider):
         assert spider in self.open_spiders, \
             "Spider %r not opened when crawling: %s" % (spider.name, request)
+        # 添加到任务调度器队列中
         self.schedule(request, spider)
         self.slot.nextcall.schedule()
 
     def schedule(self, request, spider):
+        """
+        添加到任务调度器队列中
+        """
         self.signals.send_catch_log(signal=signals.request_scheduled,
                 request=request, spider=spider)
         return self.slot.scheduler.enqueue_request(request)
@@ -220,6 +228,8 @@ class ExecutionEngine(object):
         assert self.has_capacity(), "No free spider slot when opening %r" % \
             spider.name
         log.msg("Spider opened", spider=spider)
+
+        # 取得下一个request call
         nextcall = CallLaterOnce(self._next_request, spider)
         scheduler = self.scheduler_cls.from_crawler(self.crawler)
         start_requests = yield self.scraper.spidermw.process_start_requests(start_requests, spider)

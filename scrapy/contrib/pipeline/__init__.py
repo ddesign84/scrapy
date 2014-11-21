@@ -13,6 +13,8 @@ class ItemPipelineManager(MiddlewareManager):
 
     @classmethod
     def _get_mwlist_from_settings(cls, settings):
+        # ITEM_PIPELINES = {}
+        # ITEM_PIPELINES_BASE = {}
         item_pipelines = settings['ITEM_PIPELINES']
         if isinstance(item_pipelines, (tuple, list, set, frozenset)):
             from scrapy.exceptions import ScrapyDeprecationWarning

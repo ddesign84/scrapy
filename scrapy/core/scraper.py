@@ -63,8 +63,12 @@ class Scraper(object):
     def __init__(self, crawler):
         self.slot = None
         self.spidermw = SpiderMiddlewareManager.from_crawler(crawler)
+
+        # ITEM_PROCESSOR = 'scrapy.contrib.pipeline.ItemPipelineManager'
         itemproc_cls = load_object(crawler.settings['ITEM_PROCESSOR'])
         self.itemproc = itemproc_cls.from_crawler(crawler)
+
+        # CONCURRENT_ITEMS = 100
         self.concurrent_items = crawler.settings.getint('CONCURRENT_ITEMS')
         self.crawler = crawler
         self.signals = crawler.signals

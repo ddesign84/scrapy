@@ -21,10 +21,18 @@ class Scheduler(object):
     @classmethod
     def from_crawler(cls, crawler):
         settings = crawler.settings
+
+        # DUPEFILTER_CLASS = 'scrapy.dupefilter.RFPDupeFilter'
         dupefilter_cls = load_object(settings['DUPEFILTER_CLASS'])
         dupefilter = dupefilter_cls.from_settings(settings)
+
+        # SCHEDULER_DISK_QUEUE = 'scrapy.squeue.PickleLifoDiskQueue'
         dqclass = load_object(settings['SCHEDULER_DISK_QUEUE'])
+
+        # SCHEDULER_MEMORY_QUEUE = 'scrapy.squeue.LifoMemoryQueue'
         mqclass = load_object(settings['SCHEDULER_MEMORY_QUEUE'])
+
+        # 是否在LOG里记录不可序列化的request
         logunser = settings.getbool('LOG_UNSERIALIZABLE_REQUESTS')
         return cls(dupefilter, job_dir(settings), dqclass, mqclass, logunser, crawler.stats)
 
@@ -45,6 +53,9 @@ class Scheduler(object):
         return self.df.close(reason)
 
     def enqueue_request(self, request):
+        """
+        将request添加至队列
+        """
         if not request.dont_filter and self.df.request_seen(request):
             self.df.log(request, self.spider)
             return
@@ -57,6 +68,9 @@ class Scheduler(object):
         self.stats.inc_value('scheduler/enqueued', spider=self.spider)
 
     def next_request(self):
+        """
+        取得一个request
+        """
         request = self.mqs.pop()
         if request:
             self.stats.inc_value('scheduler/dequeued/memory', spider=self.spider)

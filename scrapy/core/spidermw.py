@@ -18,6 +18,19 @@ class SpiderMiddlewareManager(MiddlewareManager):
 
     @classmethod
     def _get_mwlist_from_settings(cls, settings):
+        """
+        SPIDER_MIDDLEWARES = {}
+
+        SPIDER_MIDDLEWARES_BASE = {
+            # Engine side
+            'scrapy.contrib.spidermiddleware.httperror.HttpErrorMiddleware': 50,
+            'scrapy.contrib.spidermiddleware.offsite.OffsiteMiddleware': 500,
+            'scrapy.contrib.spidermiddleware.referer.RefererMiddleware': 700,
+            'scrapy.contrib.spidermiddleware.urllength.UrlLengthMiddleware': 800,
+            'scrapy.contrib.spidermiddleware.depth.DepthMiddleware': 900,
+            # Spider side
+        }
+        """
         return build_component_list(settings['SPIDER_MIDDLEWARES_BASE'], \
             settings['SPIDER_MIDDLEWARES'])
 
