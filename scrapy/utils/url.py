@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 This module contains general purpose URL functions not found in the standard
 library.

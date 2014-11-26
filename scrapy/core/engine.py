@@ -103,10 +103,12 @@ class ExecutionEngine(object):
         if not slot:
             return
 
+        # 暂停， 5秒后再次执行当前请求
         if self.paused:
             slot.nextcall.schedule(5)
             return
 
+        # 判断是否需要退出
         while not self._needs_backout(spider):
             if not self._next_request_from_scheduler(spider):
                 break
@@ -127,6 +129,9 @@ class ExecutionEngine(object):
             self._spider_idle(spider)
 
     def _needs_backout(self, spider):
+        """
+        判断是否需要退出
+        """
         slot = self.slot
         return not self.running \
             or slot.closing \
@@ -134,10 +139,15 @@ class ExecutionEngine(object):
             or self.scraper.slot.needs_backout()
 
     def _next_request_from_scheduler(self, spider):
+        """
+        从任务调度器中取得下一个请求
+        """
         slot = self.slot
         request = slot.scheduler.next_request()
         if not request:
             return
+
+
         d = self._download(request, spider)
         d.addBoth(self._handle_downloader_output, request, spider)
         d.addErrback(log.msg, spider=spider)
@@ -184,6 +194,7 @@ class ExecutionEngine(object):
     def schedule(self, request, spider):
         """
         添加到任务调度器队列中
+        并发送信号request_scheduled
         """
         self.signals.send_catch_log(signal=signals.request_scheduled,
                 request=request, spider=spider)
@@ -192,6 +203,8 @@ class ExecutionEngine(object):
     def download(self, request, spider):
         slot = self.slot
         slot.add_request(request)
+
+        # 下载
         d = self._download(request, spider)
         d.addBoth(self._downloaded, slot, request, spider)
         return d
@@ -231,12 +244,23 @@ class ExecutionEngine(object):
 
         # 取得下一个request call
         nextcall = CallLaterOnce(self._next_request, spider)
+
+        # 创建任务调度器
         scheduler = self.scheduler_cls.from_crawler(self.crawler)
+
+        # 执行SpiderMiddleware的process_start_requests方法 generator
         start_requests = yield self.scraper.spidermw.process_start_requests(start_requests, spider)
+
+        # 创建Engine插件
         slot = Slot(start_requests, close_if_idle, nextcall, scheduler)
         self.slot = slot
+
         self.spider = spider
+
+        # 打开调度器， 并初始化去重
         yield scheduler.open(spider)
+
+
         yield self.scraper.open_spider(spider)
         self.crawler.stats.open_spider(spider)
         yield self.signals.send_catch_log_deferred(signals.spider_opened, spider=spider)

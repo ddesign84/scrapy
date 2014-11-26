@@ -1,3 +1,4 @@
+# coding: utf-8
 from twisted.internet import reactor, error
 
 def listen_tcp(portrange, host, factory):
@@ -18,7 +19,8 @@ def listen_tcp(portrange, host, factory):
 
 
 class CallLaterOnce(object):
-    """Schedule a function to be called in the next reactor loop, but only if
+    """
+    Schedule a function to be called in the next reactor loop, but only if
     it hasn't been already scheduled since the last time it run.
     """
 

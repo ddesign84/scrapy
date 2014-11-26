@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 This module implements the Request class which is used to represent HTTP
 requests in Scrapy.
@@ -47,6 +48,7 @@ class Request(object_ref):
 
     def _set_url(self, url):
         if isinstance(url, str):
+            # 格式化ajax url
             self._url = escape_ajax(safe_url_string(url))
         elif isinstance(url, six.text_type):
             if self.encoding is None:

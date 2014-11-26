@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Base class for Scrapy spiders
 
@@ -15,7 +16,9 @@ from scrapy.exceptions import ScrapyDeprecationWarning
 
 
 class Spider(object_ref):
-    """Base class for scrapy spiders. All spiders must inherit from this
+    """
+    基类蜘蛛
+    Base class for scrapy spiders. All spiders must inherit from this
     class.
     """
 
@@ -73,6 +76,10 @@ class Spider(object_ref):
 
     @classmethod
     def handles_request(cls, request):
+        """
+        判断当前请求的URL是否属于当前蜘蛛
+        allowed_domains
+        """
         return url_is_from_spider(request.url, cls)
 
     @staticmethod

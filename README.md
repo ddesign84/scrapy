@@ -1,7 +1,14 @@
 陆续使用Scrapy已经快两年了， 感觉非常方便， 业务上已经没有什么难度了， 准备开始看源代码， 了解他的实现， 以达到从底层进行优化。
-如果不太好优化， 看完后需考虑使用golang重写一个类Scrapy的框架。
+
+读后感：
+已经基本看完， 没有特别深入， 只详细看了核心相关的代码。
+感觉scrapy真心不错， 可以快速架构抓取， 已经完全满足我的工作需要。
 
 # 架构
+
+## 架构图
+
+![scrapy](http://doc.scrapy.org/en/0.24/_images/scrapy_architecture.png)
 
 # 阅读源代码
 
@@ -28,9 +35,23 @@ def crawl(self, *args, **kwargs):
         raise
 ```
 
-## 抓取引擎
+## Spider 蜘蛛
+
+scrapy.spider.Spider
+
+* Crawl scrapy.contrib.spiders.crawl.CrawlSpider
+* Feed scrapy.contrib.spiders.feed.XMLFeedSpider、 CSVFeedSpider
+* SiteMap scrapy.contrib.spiders.sitempa.SitemapSpider
+
+### Request 请求
+
+scrapy.http.request.Request
+
+## 抓取控制引擎
 
 scrapy.core.engine.ExecutionEngine
+
+### Slot 插件
 
 ### SCHEDULER 任务调度器
 
